@@ -20,22 +20,22 @@ import org.uqbar.jwtexample.service.UserDetailService
 class AuthenticationController {
 
 	@Autowired
-	AuthenticationManager authenticationManager;
+	AuthenticationManager authenticationManager
 
 	@Autowired
-	UserDetailService usuarioService;
+	UserDetailService usuarioService
 
 	@PostMapping("/login")
 	def login(@RequestBody LoginRequest authenticationRequest) {			
 		
 		 val Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-			authenticationRequest.getUsername(), authenticationRequest.getPassword()))
+			authenticationRequest.username, authenticationRequest.password))
 
 		SecurityContextHolder.context.authentication = authentication
 		val UserDetails userDetails = usuarioService.loadUserByUsername(authenticationRequest.getUsername())
 		val String jwt = TokenProvider.generateToken(userDetails)
 
-		return ResponseEntity.ok(jwt)
+		ResponseEntity.ok(jwt)
 	}
 
 }

@@ -20,30 +20,27 @@ class JwtRequestFilter extends OncePerRequestFilter {
 
 	override protected doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 		FilterChain chain) throws ServletException, IOException {
-
-		val String authorizationHeader = request.getHeader("Authorization")
-
+		
 		var String username = null
 		var String jwt = null
-
-		if (authorizationHeader !== null && authorizationHeader.startsWith("Bearer ")) {
-			jwt = authorizationHeader.substring(7)
+		if (TokenProvider.isValidHeader(request)) {
+			jwt = TokenProvider.getTokenFromHeader(request)
 			username = TokenProvider.extractUsername(jwt)
 		}
 
 		if (username !== null && SecurityContextHolder.context.authentication === null) {
 
-			val userDetails = usuarioService.loadUserByUsername(username);
+			val userDetails = usuarioService.loadUserByUsername(username)
 
 			if (TokenProvider.validateToken(jwt, userDetails)) {
 
 				val authentication = new UsernamePasswordAuthenticationToken(
 					userDetails, null, userDetails.getAuthorities())
-				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request))
 				SecurityContextHolder.context.authentication = authentication
 			}
 		}
 
-		chain.doFilter(request, response);
+		chain.doFilter(request, response)
 	}
 }

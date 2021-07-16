@@ -26,7 +26,7 @@ class ConfiguracionDeSeguridad extends WebSecurityConfigurerAdapter {
 
 	override protected configure(AuthenticationManagerBuilder auth) throws Exception {
 
-		auth.userDetailsService(usuarioService).passwordEncoder(passwordEncoder());
+		auth.userDetailsService(usuarioService).passwordEncoder(passwordEncoder())
 	}
 
 	override protected configure(HttpSecurity http) throws Exception {
@@ -43,12 +43,12 @@ class ConfiguracionDeSeguridad extends WebSecurityConfigurerAdapter {
 
 	@Bean
 	override AuthenticationManager authenticationManagerBean() throws Exception {
-		return super.authenticationManagerBean()
+		super.authenticationManagerBean()
 	}
 
 	@Bean
 	def BCryptPasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder()
+		new BCryptPasswordEncoder()
 	}
 
 }
