@@ -21,10 +21,16 @@ class UserDetailService implements UserDetailsService {
 		if (user === null) {
 			throw new UsernameNotFoundException(username)
 		}
-		val authorities = TokenProvider.rolesToAuthority(user.getRoles().map [ role |
-			role.nombre
-		])
-		User.withUsername(username).password(user.password).authorities(authorities).accountExpired(false).
-			accountLocked(false).credentialsExpired(false).disabled(false).build()
+		val authorities = TokenProvider.rolesToAuthority(user.getRoles().map [role|role.nombre])
+			
+		User
+			.withUsername(username)
+			.password(user.password)
+			.authorities(authorities)
+			.accountExpired(false)
+			.accountLocked(false)
+			.credentialsExpired(false)
+			.disabled(false)
+			.build()
 	}
 }
