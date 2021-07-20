@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import org.uqbar.jwtexample.dao.RepoUsuario
 import org.uqbar.jwtexample.domain.Usuario
-import org.uqbar.jwtexample.security.TokenProvider
+import org.uqbar.jwtexample.security.Token
 
 @Service
 class UserDetailService implements UserDetailsService {
@@ -21,7 +21,7 @@ class UserDetailService implements UserDetailsService {
 		if (user === null) {
 			throw new UsernameNotFoundException(username)
 		}
-		val authorities = TokenProvider.rolesToAuthority(user.getRoles().map [role|role.nombre])
+		val authorities = Token.rolesToAuthority(user.getRoles().map [role|role.nombre])
 			
 		User
 			.withUsername(username)

@@ -7,7 +7,7 @@ import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
-import org.uqbar.jwtexample.security.TokenProvider
+import org.uqbar.jwtexample.security.Token
 import org.uqbar.jwtexample.service.UsuarioService
 
 @RestController
@@ -26,7 +26,7 @@ class UsuarioController {
 	@Secured("ROLE_ADMIN","ROLE_USER")
 	@GetMapping("/quiensoy")
 	def quienSoy(HttpServletRequest request, Model model) {
-		val jwt = TokenProvider.getTokenFromHeader(request)
-		TokenProvider.extractUsername(jwt)
+		val token = Token.generateTokenFromHeader(request)
+		token.extractUsername
 	}
 }

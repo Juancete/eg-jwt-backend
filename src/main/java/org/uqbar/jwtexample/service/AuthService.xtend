@@ -8,7 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import org.uqbar.jwtexample.security.LoginRequest
-import org.uqbar.jwtexample.security.TokenProvider
+import org.uqbar.jwtexample.security.Token
 
 @Service
 class AuthService {
@@ -24,9 +24,10 @@ class AuthService {
 
 		SecurityContextHolder.context.authentication = authentication
 		val UserDetails userDetails = userDetailService.loadUserByUsername(authenticationRequest.getUsername())
-		val String jwt = TokenProvider.generateToken(userDetails)
-		'''{"token": "«jwt»"
-				"refreshToken": "Expired Token"
+		val String accessToken = Token.generateAccessToken(userDetails).toString
+		val String refreshToken = Token.generateRefreshToken(userDetails).toString
+		'''{"token": "«accessToken»"
+				"refreshToken": "«refreshToken»"
 				}'''
 	}
 }

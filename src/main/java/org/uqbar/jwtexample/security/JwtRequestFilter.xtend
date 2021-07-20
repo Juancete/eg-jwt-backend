@@ -18,16 +18,10 @@ class JwtRequestFilter extends OncePerRequestFilter {
 	override protected doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 		FilterChain chain) throws ServletException, IOException {
 		try {
-			var String username = null
-			var String jwt = null
-			if (TokenProvider.isValidHeader(request)) {
-				jwt = TokenProvider.getTokenFromHeader(request)
-				username = TokenProvider.extractUsername(jwt)
-			}
+			val token = Token.generateTokenFromHeader(request)
 
-			if (username !== null && SecurityContextHolder.context.authentication === null) {
-				val authorities = TokenProvider.extractAuthorities(jwt)
-				val authentication = new UsernamePasswordAuthenticationToken(username, null, authorities)
+			if (SecurityContextHolder.context.authentication === null) {
+				val authentication = new UsernamePasswordAuthenticationToken(token.extractUsername, null, token.extractAuthorities)
 				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request))
 				SecurityContextHolder.context.authentication = authentication
 			}
