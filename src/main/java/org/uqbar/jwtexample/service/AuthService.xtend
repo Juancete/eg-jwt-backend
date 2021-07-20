@@ -18,16 +18,23 @@ class AuthService {
 	@Autowired
 	AuthenticationManager authenticationManager
 
+	@Deprecated
 	def authenticate(LoginRequest authenticationRequest) {
 		val Authentication authentication = authenticationManager.authenticate(
 			new UsernamePasswordAuthenticationToken(authenticationRequest.username, authenticationRequest.password))
 
 		SecurityContextHolder.context.authentication = authentication
+
 		val UserDetails userDetails = userDetailService.loadUserByUsername(authenticationRequest.getUsername())
 		val String accessToken = Token.generateAccessToken(userDetails).toString
 		val String refreshToken = Token.generateRefreshToken(userDetails).toString
 		'''{"token": "«accessToken»"
 				"refreshToken": "«refreshToken»"
 				}'''
+	}
+
+	def attemptLogin(LoginRequest authenticationRequest) {
+		authenticationManager.authenticate(
+			new UsernamePasswordAuthenticationToken(authenticationRequest.username, authenticationRequest.password))
 	}
 }

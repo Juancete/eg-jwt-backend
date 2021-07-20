@@ -11,7 +11,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.uqbar.jwtexample.service.UserDetailService
 
 @Configuration
@@ -22,7 +21,7 @@ class ConfiguracionDeSeguridad extends WebSecurityConfigurerAdapter {
 	UserDetailService usuarioService
 
 	@Autowired
-	JwtRequestFilter jwtRequestFilter
+	UserDetailService userDetailService
 
 	override protected configure(AuthenticationManagerBuilder auth) throws Exception {
 
@@ -33,10 +32,12 @@ class ConfiguracionDeSeguridad extends WebSecurityConfigurerAdapter {
 
 		http
 			.csrf().disable()
-			.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter)
+//			.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter)
 			.authorizeRequests().antMatchers("/login").permitAll()
 			.anyRequest().authenticated()
 			.and()
+            .addFilter(new JWTAuthenticationFilter(authenticationManager(), userDetailService))
+            .addFilter(new JWTAuthorizationFilter(authenticationManager()))
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
 	}

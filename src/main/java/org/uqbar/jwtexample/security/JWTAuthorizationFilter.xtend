@@ -6,17 +6,21 @@ import javax.servlet.FilterChain
 import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
-import org.springframework.stereotype.Component
-import org.springframework.web.filter.OncePerRequestFilter
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 
-@Component("jwtRequestFilter")
-class JwtRequestFilter extends OncePerRequestFilter {
+class JWTAuthorizationFilter extends BasicAuthenticationFilter {
+	
+	new(AuthenticationManager authenticationManager) {
+		super(authenticationManager)
+	}
 
-	override protected doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-		FilterChain chain) throws ServletException, IOException {
+	override doFilterInternal(HttpServletRequest request, HttpServletResponse response
+		,FilterChain chain)throws IOException, ServletException
+	{
 		try {
 			val token = Token.generateTokenFromHeader(request)
 
@@ -36,8 +40,7 @@ class JwtRequestFilter extends OncePerRequestFilter {
 			response.status = HttpServletResponse.SC_UNAUTHORIZED
 			response.getWriter().write(texto)
 			return
-		} 
-
-		chain.doFilter(request, response)
+		}
+		chain.doFilter(request, response) 
 	}
 }
