@@ -2,11 +2,11 @@ package org.uqbar.jwtexample.security
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.IOException
-import java.util.Date
 import javax.servlet.FilterChain
 import javax.servlet.ServletException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import org.eclipse.xtend.lib.annotations.Accessors
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
@@ -16,33 +16,40 @@ import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.web.authentication.AuthenticationFailureHandler
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.uqbar.jwtexample.dao.RepoAuth
 import org.uqbar.jwtexample.service.UserDetailService
+
+import static extension org.uqbar.jwtexample.security.ResponseUtil.*
 
 class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	
+	RepoAuth repo
+	
 	UserDetailService userDetailService
 	
-	new(AuthenticationManager manager, UserDetailService _userDetailService) {
+	new(AuthenticationManager manager, UserDetailService _userDetailService,RepoAuth _repo ) {
 		setAuthenticationFailureHandler(new JWTAuthenticationFailureHandler())
 		authenticationManager = manager
+		repo = _repo
 		userDetailService = _userDetailService
 	}
     
 	override Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException 
 	{
+		var Authentication authentication = null
 		try {
-			val LoginRequest authenticationRequest = new ObjectMapper().readValue(request.getInputStream(),
+			val LoginRequest authenticationRequest = new ObjectMapper().readValue(request.inputStream,
 				LoginRequest)
 
-			val Authentication authentication = authenticationManager.authenticate(
+			authentication = authenticationManager.authenticate(
 			new UsernamePasswordAuthenticationToken(authenticationRequest.username, authenticationRequest.password))
 			
-		
 		SecurityContextHolder.context.authentication = authentication
-		authentication
+		
 		} catch (IOException e) {
-			throw new RuntimeException(e)
+			response.setResponseBadRequest(request,"Malformed body")
 		}
+		authentication
 	}
 	
     override successfulAuthentication(HttpServletRequest request,
@@ -52,15 +59,10 @@ class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 	
 		val usuario = authenticationRequest.principal as User
 		val UserDetails userDetails = userDetailService.loadUserByUsername(usuario.username)
-		val String accessToken = Token.generateAccessToken(userDetails).toString
-		val String refreshToken = Token.generateRefreshToken(userDetails).toString
-		val body ='''{"token": "«accessToken»",
-				"refreshToken": "«refreshToken»"
-				}'''
-        response.addHeader("Authorization", "Bearer " + accessToken)
-        response.addHeader("access-control-expose-headers", "Authorization")
-        response.contentType = "application/json"
-        response.getWriter().append(body)
+		val accessToken = AuthorizationToken.build(userDetails)
+		val refreshToken = RefreshToken.build(userDetails)
+		repo.add(usuario.username,refreshToken)
+		response.setResponseLoginOk(accessToken,refreshToken)
 	}
 }
 
@@ -69,14 +71,13 @@ class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         
         override onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)
                 throws IOException, ServletException {
-            response.status = HttpServletResponse.SC_UNAUTHORIZED
-            response.contentType = "application/json"
-            val json = '''{"timestamp":"«new Date().getTime()»",
-				"error": "Unautorized",
-				"message": "usuario o contraseña incorrecto",
-				"path": "«request.getRequestURL()»"
-				}'''
-            response.getWriter().append(json)
+            response.setResponseUnautorized(request , "usuario o contraseña incorrecto")
         }
         
     }
+
+@Accessors
+class LoginRequest{
+	String username
+	String password	
+}

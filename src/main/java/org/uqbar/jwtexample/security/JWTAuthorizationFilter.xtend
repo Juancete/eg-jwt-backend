@@ -1,6 +1,7 @@
 package org.uqbar.jwtexample.security
 
 import io.jsonwebtoken.ExpiredJwtException
+import io.jsonwebtoken.SignatureException
 import java.io.IOException
 import javax.servlet.FilterChain
 import javax.servlet.ServletException
@@ -9,8 +10,11 @@ import javax.servlet.http.HttpServletResponse
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
+
+import static extension org.uqbar.jwtexample.security.ResponseUtil.*
 
 class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 	
@@ -22,25 +26,21 @@ class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 		,FilterChain chain)throws IOException, ServletException
 	{
 		try {
-			val token = Token.generateTokenFromHeader(request)
-
-			if (SecurityContextHolder.context.authentication === null) {
+			val token = AuthorizationToken.build(request)
+			
 				val authentication = new UsernamePasswordAuthenticationToken(token.extractUsername, null, token.extractAuthorities)
 				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request))
 				SecurityContextHolder.context.authentication = authentication
-			}
-
+				chain.doFilter(request, response) 
 		} catch (ExpiredJwtException e) {
-			val texto = 
-			'''{"error": "Unautorized"
-				"message": "Expired Token"
-				"path": "«request.getRequestURL()»"
-				}'''
-			response.setContentType("application/json")
-			response.status = HttpServletResponse.SC_UNAUTHORIZED
-			response.getWriter().write(texto)
-			return
+			response.setResponseUnautorized(request,"Expired Token")
+		} catch (SignatureException | UsernameNotFoundException e) {
+			response.setResponseUnautorized(request,"Invalid Token")
+		} catch (IOException e) {
+			response.setResponseBadRequest(request, "Invalid data")
+		} finally {
+			SecurityContextHolder.clearContext()
 		}
-		chain.doFilter(request, response) 
+		
 	}
 }

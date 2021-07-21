@@ -11,12 +11,16 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.uqbar.jwtexample.dao.RepoAuth
 import org.uqbar.jwtexample.service.UserDetailService
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true,prePostEnabled=true)
 class ConfiguracionDeSeguridad extends WebSecurityConfigurerAdapter {
+	@Autowired
+	RepoAuth repo
+	
 	@Autowired
 	UserDetailService usuarioService
 
@@ -32,11 +36,11 @@ class ConfiguracionDeSeguridad extends WebSecurityConfigurerAdapter {
 
 		http
 			.csrf().disable()
-//			.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter)
 			.authorizeRequests().antMatchers("/login").permitAll()
 			.anyRequest().authenticated()
 			.and()
-            .addFilter(new JWTAuthenticationFilter(authenticationManager(), userDetailService))
+            .addFilter(new JWTAuthenticationFilter(authenticationManager(), userDetailService, repo))
+            .addFilterBefore(new JWTRefreshFilter("/refreshToken",authenticationManager(),userDetailService, repo),JWTAuthenticationFilter)
             .addFilter(new JWTAuthorizationFilter(authenticationManager()))
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
