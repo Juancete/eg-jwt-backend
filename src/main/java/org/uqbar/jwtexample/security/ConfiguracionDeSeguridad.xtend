@@ -12,6 +12,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.uqbar.jwtexample.dao.RepoAuth
+import org.uqbar.jwtexample.security.filters.JWTAuthenticationFilter
+import org.uqbar.jwtexample.security.filters.JWTAuthorizationFilter
+import org.uqbar.jwtexample.security.filters.JWTRefreshFilter
 import org.uqbar.jwtexample.service.UserDetailService
 
 @Configuration

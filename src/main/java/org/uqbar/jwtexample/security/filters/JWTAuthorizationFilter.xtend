@@ -1,4 +1,4 @@
-package org.uqbar.jwtexample.security
+package org.uqbar.jwtexample.security.filters
 
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.SignatureException
@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
+import org.uqbar.jwtexample.security.AuthorizationToken
 
 import static extension org.uqbar.jwtexample.security.ResponseUtil.*
 

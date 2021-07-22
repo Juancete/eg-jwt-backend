@@ -1,4 +1,4 @@
-package org.uqbar.jwtexample.security
+package org.uqbar.jwtexample.security.filters
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.jsonwebtoken.ExpiredJwtException
@@ -18,6 +18,10 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter
 import org.uqbar.jwtexample.dao.RepoAuth
+import org.uqbar.jwtexample.security.AuthorizationToken
+import org.uqbar.jwtexample.security.RefreshToken
+import org.uqbar.jwtexample.security.RefreshTokenAuthenticationToken
+import org.uqbar.jwtexample.security.Token
 import org.uqbar.jwtexample.service.UserDetailService
 
 import static extension org.uqbar.jwtexample.security.ResponseUtil.*
@@ -28,7 +32,7 @@ class JWTRefreshFilter extends AbstractAuthenticationProcessingFilter {
 	Token refreshToken
 	UserDetails userDetails
 	
-	protected new(String defaultFilterProcessesUrl, AuthenticationManager authenticationManager, UserDetailService _userDetailService, RepoAuth _repo) {
+	new(String defaultFilterProcessesUrl, AuthenticationManager authenticationManager, UserDetailService _userDetailService, RepoAuth _repo) {
 		super(defaultFilterProcessesUrl, authenticationManager)
 		userDetailService = _userDetailService
 		repo = _repo

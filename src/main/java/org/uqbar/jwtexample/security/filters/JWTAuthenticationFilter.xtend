@@ -1,4 +1,4 @@
-package org.uqbar.jwtexample.security
+package org.uqbar.jwtexample.security.filters
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.IOException
@@ -17,6 +17,8 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.web.authentication.AuthenticationFailureHandler
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.uqbar.jwtexample.dao.RepoAuth
+import org.uqbar.jwtexample.security.AuthorizationToken
+import org.uqbar.jwtexample.security.RefreshToken
 import org.uqbar.jwtexample.service.UserDetailService
 
 import static extension org.uqbar.jwtexample.security.ResponseUtil.*
