@@ -42,14 +42,14 @@ class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 		try {
 			val LoginRequest authenticationRequest = new ObjectMapper().readValue(request.inputStream,
 				LoginRequest)
-
+			authenticationRequest.validate
 			authentication = authenticationManager.authenticate(
 			new UsernamePasswordAuthenticationToken(authenticationRequest.username, authenticationRequest.password))
 			
 		SecurityContextHolder.context.authentication = authentication
 		
 		} catch (IOException e) {
-			response.setResponseBadRequest(request,"Malformed body")
+			response.setResponseBadRequest(request,"Invalid payload")
 		}
 		authentication
 	}
@@ -73,7 +73,7 @@ class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         
         override onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)
                 throws IOException, ServletException {
-            response.setResponseUnautorized(request , "usuario o contraseña incorrecto")
+            response.setResponseUnauthorized(request , "usuario o contraseña incorrecto")
         }
         
     }
@@ -81,5 +81,11 @@ class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 @Accessors
 class LoginRequest{
 	String username
-	String password	
+	String password
+	
+	def validate() {
+		if (username === null || password === null)
+			throw new IOException
+	}
+	
 }

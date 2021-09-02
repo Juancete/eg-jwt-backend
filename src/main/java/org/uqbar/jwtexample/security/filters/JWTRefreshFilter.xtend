@@ -47,7 +47,7 @@ class JWTRefreshFilter extends AbstractAuthenticationProcessingFilter {
 
 			refreshToken = RefreshToken.build(authenticationRequest.refreshToken)
 			if (!repo.verifyToken(refreshToken.extractUsername,refreshToken))
-				response.setResponseUnautorized(request, "Invalid Token")
+				response.setResponseUnauthorized(request, "Invalid Token")
 			else if (SecurityContextHolder.context.authentication === null) {
 				userDetails = userDetailService.loadUserByUsername(refreshToken.extractUsername)
 				
@@ -57,10 +57,10 @@ class JWTRefreshFilter extends AbstractAuthenticationProcessingFilter {
 			} 
 
 		} catch (ExpiredJwtException e) {
-			response.setResponseUnautorized(request, "Expired Token")
+			response.setResponseUnauthorized(request, "Expired Token")
 
 		} catch (SignatureException | UsernameNotFoundException e) {
-			response.setResponseUnautorized(request,"Invalid Token")
+			response.setResponseUnauthorized(request,"Invalid Token")
 			
 		} catch (IOException e) {
 			SecurityContextHolder.clearContext()

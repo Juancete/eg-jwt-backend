@@ -17,10 +17,8 @@ class UserDetailService implements UserDetailsService {
 	RepoUsuario userRepository
 
 	override UserDetails loadUserByUsername(String username) {
-		val Usuario user = userRepository.findByName(username)
-		if (user === null) {
-			throw new UsernameNotFoundException(username)
-		}
+		val Usuario user = userRepository.findByName(username).orElseThrow[new UsernameNotFoundException(username)]
+
 		val authorities = AuthorizationToken.rolesToAuthority(user.getRoles().map [role|role.nombre])
 			
 		User

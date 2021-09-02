@@ -4,6 +4,8 @@ import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import java.io.IOException
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.Date
 import java.util.List
 import java.util.Map
@@ -17,12 +19,30 @@ abstract class Token {
 
 	def static createToken(Map<String, Object> claims, UserDetails userDetails, int tokenLife, String secret) {
 
-		Jwts.builder().setHeaderParam("typ", "JWT").setClaims(claims).setSubject(userDetails.username).setIssuedAt(
-			new Date(System.currentTimeMillis())).setExpiration(new Date(System.currentTimeMillis() + tokenLife)).
-			signWith(SignatureAlgorithm.HS256, secret).compact()
+		Jwts.builder()
+		.setHeaderParam("typ", "JWT")
+		.setClaims(claims)
+		.setSubject(userDetails.username)
+		.setIssuedAt(Date.from(now()))
+		.setExpiration(Date.from(nowPlus(tokenLife)))
+		.signWith(SignatureAlgorithm.HS256, secret)		
+		.compact()
 
 	}
 
+	def static now(){
+		localDateTimeToInstant(LocalDateTime.now())
+	}
+	
+	def static nowPlus(int minutes){
+		val fecha = LocalDateTime.now()
+		fecha.plusMinutes(minutes)
+		localDateTimeToInstant(fecha)
+	}
+	def static localDateTimeToInstant(LocalDateTime date){
+		date.atZone(ZoneId.systemDefault()).toInstant()
+	}
+	
 	def Boolean validateToken(String token, UserDetails userDetails) {
 		val String username = extractUsername()
 		username.equals(userDetails.username) && !isTokenExpired()
@@ -62,7 +82,7 @@ abstract class Token {
 
 class RefreshToken extends Token {
 	static final String REFRESH_SECRET = ";a;sldkfasdQ$#%#$%@!#DFFAsd09234"
-	static final int REFRESK_TOKEN_LIFE = 1000 * 60 * 60 * 10
+	static final int REFRESK_TOKEN_LIFE = 60 * 10 // 10 horas
 	
 	def static build(String token){
 		new RefreshToken() =>[
@@ -87,7 +107,7 @@ class AuthorizationToken extends Token {
 	static final String ROLE_IDENTIFICATION = "Roles"
 	static final String SECRET = "123i!@#!@#$%Y^U&I*UJHGFDSZXcvbhjkuy"
 
-	static final int TOKEN_LIFE = 1000 * 60 * 60 * 10
+	static final int TOKEN_LIFE = 3 // minutos
 
 	def static build(UserDetails userDetails){
 		val roles = generateRoles(userDetails)

@@ -22,7 +22,7 @@ class ResponseUtil {
 		setResponseError(response, request, message, HttpServletResponse.SC_BAD_REQUEST)
 	}
 
-	def static setResponseUnautorized(HttpServletResponse response, HttpServletRequest request, String message) {
+	def static setResponseUnauthorized(HttpServletResponse response, HttpServletRequest request, String message) {
 		setResponseError(response, request, message, HttpServletResponse.SC_UNAUTHORIZED)
 	}
 

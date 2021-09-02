@@ -4,6 +4,7 @@ import org.apache.commons.collections15.Predicate
 import org.springframework.stereotype.Repository
 import org.uqbar.commons.model.CollectionBasedRepo
 import org.uqbar.jwtexample.domain.Usuario
+import java.util.Optional
 
 @Repository
 class RepoUsuario extends CollectionBasedRepo<Usuario> {
@@ -28,8 +29,8 @@ class RepoUsuario extends CollectionBasedRepo<Usuario> {
 		Usuario
 	}
 	
-	def findByName(String nombre) {
-		this.allInstances.filter[user | user.username == nombre].head
+	def Optional<Usuario> findByName(String nombre) {
+		Optional.of(this.allInstances.filter[user | user.username == nombre].head)
 	}
 
 }

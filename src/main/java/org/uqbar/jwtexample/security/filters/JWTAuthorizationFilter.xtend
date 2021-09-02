@@ -34,9 +34,9 @@ class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 				SecurityContextHolder.context.authentication = authentication
 				chain.doFilter(request, response) 
 		} catch (ExpiredJwtException e) {
-			response.setResponseUnautorized(request,"Expired Token")
+			response.setResponseUnauthorized(request,"Expired Token")
 		} catch (SignatureException | UsernameNotFoundException e) {
-			response.setResponseUnautorized(request,"Invalid Token")
+			response.setResponseUnauthorized(request,"Invalid Token")
 		} catch (IOException e) {
 			response.setResponseBadRequest(request, "Invalid data")
 		} finally {
